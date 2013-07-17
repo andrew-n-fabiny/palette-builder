@@ -1,0 +1,48 @@
+.pb-grid {
+  border-collapse: collapse;
+}
+
+.pb-cell {
+	overflow: hidden;
+	position: relative;
+	width: 40px; height: 40px;
+	border: 6px solid #000;
+}
+
+.pb-cell.add {
+	border: none;
+	background-color: none !important;
+}
+.pb-cell.add.alone {
+	border: 6px solid #000;
+	background-color: #fff;
+}
+.pb-cell.add::after {
+	content: '+';
+	display: block;
+	text-align: center;
+	font-size: medium;
+	line-height: 40px;
+	color: #000;
+}
+.pb-cell.add.alone::after {
+	color: #000;
+	font-weight: bold;
+	font-size: large;
+}
+
+.pb-cell.hidden {
+	opacity: 0;
+	border: none;
+}
+
+.pb-cpick {
+	opacity: 0;
+	width: 100%; height: 100%;
+	position: absolute;
+	top: 0; left 0;
+	cursor: pointer;
+}
+.pb-cell.hidden .pb-cpick {
+	display: none;
+}
