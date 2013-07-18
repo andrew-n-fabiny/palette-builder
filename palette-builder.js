@@ -1,18 +1,42 @@
-(function(window, jQuery, undefined) {
-  var class_grid = 'pb-grid';
+(function(window, $, undefined) {
+	var class_grid = 'pb-grid';
 	var class_cell = 'pb-cell';
 	var class_color = 'pb-cpick';
 	var color_default = '#010101';
 	
-	var color_click = function(evt) {
+	var getInputColor = function(input) {
+		var cell = input.parent();
+		if(isAddState(cell)) return averageColors(getAdjacent(cell));
+		return input.val();
+	}
+
+	var target_click = function() {
 		var input = $(this);
 		var cell = input.parent();
-		if(isAddState(cell)) {
-			input.val(averageColors(getAdjacent(input.parent())));
-			input.trigger('change');
-		}
+		var color = getInputColor(input);
+		input.spectrum('set', color);
 	};
-	var color_change = function(evt) {
+	var input_click = function(evt) {
+		var input = $(this);
+		var cell = input.parent();
+		var color = getInputColor(input);
+
+		input.spectrum({
+			color: color,
+			preferredFormat: "hex6",
+			showInput: true,
+			showInitial: true,
+			showPalette: true,
+			showSelectionPalette: true,
+			localStorageKey: "palette-builder.palette",
+			palette: [['#ffffff']],
+			beforeShow: target_click
+		});
+		input.spectrum('show');
+		return false; 
+	};
+	
+	var input_change = function(evt) {
 		var input = $(this);
 		var cell = input.parent();
 		
@@ -50,38 +74,6 @@
 	};
 	var padCHex = function(s) {
 		return s.length === 2 ? s : '0' + s;
-	};
-	
-	var buildGrid = function(parent) {
-		var row = buildRow(1, false, true);
-		
-		var table = $('<table>');
-		table.addClass(class_grid);
-		table.append(row);
-		table.on('change', '.' + class_color, color_change);
-		table.on('click', '.' + class_color, color_click);
-		return table;
-	};
-	var buildRow = function(count, hidden, alone) {
-		var row = $('<tr>');
-		for(var i = 0; i < count; i++) {
-			row.append(buildCell(hidden, alone));
-		}
-		return row;
-	};
-	var buildCell = function(hidden, alone) {
-		var select = $('<input>');
-		select.addClass(class_color);
-		select.attr('type', 'color');
-		select.val(color_default);
-		
-		var cell = $('<td>');
-		cell.addClass(class_cell);
-		if(alone) cell.addClass('alone');
-		if(hidden) setHiddenState(cell);
-		else setAddState(cell);
-		cell.append(select);
-		return cell;
 	};
 	
 	var expandCell = function(cell) {
@@ -219,6 +211,37 @@
 		return grid.find('.add').length;
 	};
 	
+	var buildCell = function(hidden, alone) {
+		var select = $('<input>', window.document);
+		select.addClass(class_color);
+		select.attr('type', 'color');
+		
+		var cell = $('<td>');
+		cell.addClass(class_cell);
+		if(alone) cell.addClass('alone');
+		if(hidden) setHiddenState(cell);
+		else setAddState(cell);
+		cell.append(select);
+		return cell;
+	};
+	var buildRow = function(count, hidden, alone) {
+		var row = $('<tr>');
+		for(var i = 0; i < count; i++) {
+			row.append(buildCell(hidden, alone));
+		}
+		return row;
+	};
+	var buildGrid = function(parent) {
+		var row = buildRow(1, false, true);
+		
+		var table = $('<table>');
+		table.addClass(class_grid);
+		table.append(row);
+		table.on('click', '.' + class_color, input_click);
+		table.on('change', '.' + class_color, input_change);
+		return table;
+	};
+	
 	var initEach = function(index, element) {
 		$(element).append(buildGrid());
 	};
@@ -229,4 +252,4 @@
 	window.palette = {
 		build: init
 	};
-})(window, jQuery);
+})(window, $);
